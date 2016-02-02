@@ -6,6 +6,7 @@ import javax.persistence.PersistenceException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,8 +23,6 @@ public class JPAX {
     /* is auto transaction, default is true */
     public static boolean autoTxs = true;
 
-    public static String MODEL_PACKAGE = "com.ctc.zhengxin";
-
     /**
      *
      * 初始化前，需要enhance model, 自动查找com.ctc.zhengxin 包下的 @Entity 类
@@ -32,7 +31,32 @@ public class JPAX {
      *
      */
     public static void beforeInit() {
-        Set<Class> jpaClasses = ClassUtil.getClasses(MODEL_PACKAGE);
+        Set<Class> jpaClasses = new HashSet<Class>();
+
+        String jpaModelPackage = Config.getProperty(Config.JPA_DB_MODEL_PACKAGE, null);
+        if (jpaModelPackage != null && !"".equals(jpaModelPackage)) {
+            jpaClasses.addAll(ClassUtil.getClasses(jpaModelPackage));
+        }
+
+        for (Object key : Config.getProperties().keySet()) {
+            if (!key.toString().contains("." + Config.JPA_DB_MODEL_PACKAGE)) continue;
+            String otherModelPackage = Config.getProperty(key.toString());
+            if (otherModelPackage == null || "".equals(otherModelPackage)) continue;
+            Set<Class> tmpSet = ClassUtil.getClasses(otherModelPackage);
+            if (tmpSet == null) continue;
+            for (Class cls : tmpSet) {
+                boolean already = false;
+                for (Class cls1 : jpaClasses) {
+                    if (cls1.getName().equals(cls.getName())) {
+                        already = true;
+                    }
+                }
+                if (!already) {
+                    jpaClasses.add(cls);
+                }
+            }
+        }
+
         for (Class cls : jpaClasses) {
             try {
                 new JPAEnhancer().enhanceThisClass(cls);

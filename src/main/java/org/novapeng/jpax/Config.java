@@ -100,6 +100,7 @@ public class Config {
         loadProperties();
         String value = properties.getProperty(key);
         if (value == null) value = defaultValue;
+        if (value == null) return null;
         if (value.startsWith("${") && value.endsWith("}")) {
             String refKey = value.substring(2, value.length() - 1);
             return properties.getProperty(refKey);
