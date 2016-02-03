@@ -1,5 +1,6 @@
 package org.novapeng.jpax;
 
+import javax.persistence.EntityTransaction;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Query;
 import java.util.Arrays;
@@ -184,6 +185,15 @@ public class JPAModel extends JPABase {
      * @return first record
      */
     public static Map<String, Object> sqlFirst(String sql, Object... params) {
+        throw new UnsupportedOperationException("Please annotate your JPA model with @javax.persistence.Entity annotation.");
+    }
+
+    /**
+     * get transaction
+     *
+     * @return transaction
+     */
+    public static EntityTransaction getTransaction() {
         throw new UnsupportedOperationException("Please annotate your JPA model with @javax.persistence.Entity annotation.");
     }
 
