@@ -2,6 +2,7 @@ package org.novapeng.jpax;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.hibernate.Session;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.internal.SessionImpl;
 
 import javax.persistence.EntityManager;
@@ -85,5 +86,21 @@ public class DB {
             throw new JPAException("get connection failed!", e);
         }
         return connection;
+    }
+
+
+    @SuppressWarnings("unused")
+    public static Connection getNewConnection(String dataBaseName) {
+        return getNewConnectionByEm(JPA.em(dataBaseName));
+    }
+
+    public static Connection getNewConnectionByEm(EntityManager manager) {
+        SessionImpl session = (SessionImpl) manager.unwrap(Session.class);
+        SessionFactoryImpl sessionFactory = (SessionFactoryImpl) session.getSessionFactory();
+        try {
+            return sessionFactory.getConnectionProvider().getConnection();
+        } catch (SQLException e) {
+            throw new JPAException("get connection failed!", e);
+        }
     }
 }
