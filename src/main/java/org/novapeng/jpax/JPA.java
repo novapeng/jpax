@@ -226,18 +226,22 @@ public class JPA {
         }
 
         String jpaModelPackage = p(dataBaseName, Config.JPA_DB_MODEL_PACKAGE);
-        Set<Class> classes = ClassUtil.getClasses(jpaModelPackage);
 
-        for (Class<?> clazz : classes) {
-            if (!clazz.isAnnotationPresent(Entity.class)) continue;
-            if (dataBaseName == null) {
-                if (clazz.getAnnotation(DataBase.class) != null) continue;
-            } else {
-                if (clazz.getAnnotation(DataBase.class) == null) continue;
+        for (String s : jpaModelPackage.split(",")) {
+            Set<Class> classes = ClassUtil.getClasses(s.trim());
+
+            for (Class<?> clazz : classes) {
+                if (!clazz.isAnnotationPresent(Entity.class)) continue;
+                if (dataBaseName == null) {
+                    if (clazz.getAnnotation(DataBase.class) != null) continue;
+                } else {
+                    if (clazz.getAnnotation(DataBase.class) == null) continue;
+                }
+                cfg.addAnnotatedClass(clazz);
             }
-            cfg.addAnnotatedClass(clazz);
+            cfg.addPackage(s.trim());
         }
-        cfg.addPackage(jpaModelPackage);
+
         return cfg.buildEntityManagerFactory();
     }
 

@@ -35,15 +35,21 @@ public class JPAX {
 
         String jpaModelPackage = Config.getProperty(Config.JPA_DB_MODEL_PACKAGE, null);
         if (jpaModelPackage != null && !"".equals(jpaModelPackage)) {
-            jpaClasses.addAll(ClassUtil.getClasses(jpaModelPackage));
+            for (String s : jpaModelPackage.split(",")) {
+                jpaClasses.addAll(ClassUtil.getClasses(s.trim()));
+            }
         }
 
         for (Object key : Config.getProperties().keySet()) {
             if (!key.toString().contains("." + Config.JPA_DB_MODEL_PACKAGE)) continue;
             String otherModelPackage = Config.getProperty(key.toString());
             if (otherModelPackage == null || "".equals(otherModelPackage)) continue;
-            Set<Class> tmpSet = ClassUtil.getClasses(otherModelPackage);
-            if (tmpSet == null) continue;
+            Set<Class> tmpSet = new HashSet<Class>();
+            for (String s : otherModelPackage.split(",")) {
+                tmpSet.addAll(ClassUtil.getClasses(s.trim()));
+            }
+
+            if (tmpSet.size() == 0) continue;
             for (Class cls : tmpSet) {
                 boolean already = false;
                 for (Class cls1 : jpaClasses) {
