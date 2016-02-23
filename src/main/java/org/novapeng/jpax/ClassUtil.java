@@ -1,5 +1,7 @@
 package org.novapeng.jpax;
 
+import sun.misc.IOUtils;
+
 import java.io.*;
 import java.net.JarURLConnection;
 import java.net.URL;
@@ -62,9 +64,7 @@ public class ClassUtil {
                                                     .length() - 6);
                                     FileClassLoader fileClassLoader = new FileClassLoader(ClassUtil.class.getClassLoader());
                                     InputStream inputStream = jar.getInputStream(entry);
-                                    byte[] classBytes = new byte[inputStream.available()];
-                                    //noinspection ResultOfMethodCallIgnored
-                                    inputStream.read(classBytes);
+                                    byte[] classBytes = IOUtils.readFully(inputStream, (int) entry.getSize(), true);
                                     Class clazz = fileClassLoader.findClass(className, classBytes);
                                     if (clazz != null) {
                                         classes.add(clazz);
